@@ -10,7 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  extended_image_library: ^0.1.3
+  extended_image_library: 
+    git:
+      url: https://github.com/wittech/extended_image_library.git
 
 dev_dependencies:
   flutter_test:
