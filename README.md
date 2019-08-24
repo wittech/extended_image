@@ -1,6 +1,6 @@
 # extended_image
 
-[![pub package](https://img.shields.io/pub/v/extended_image.svg)](https://pub.dartlang.org/packages/extended_image)
+[![pub package](https://img.shields.io/pub/v/extended_image.svg)](https://pub.dartlang.org/packages/extended_image) [![GitHub stars](https://img.shields.io/github/stars/fluttercandies/extended_image)](https://github.com/fluttercandies/extended_image/stargazers) [![GitHub forks](https://img.shields.io/github/forks/fluttercandies/extended_image)](https://github.com/fluttercandies/extended_image/network)  [![GitHub license](https://img.shields.io/github/license/fluttercandies/extended_image)](https://github.com/fluttercandies/extended_image/blob/master/LICENSE)  [![GitHub issues](https://img.shields.io/github/issues/fluttercandies/extended_image)](https://github.com/fluttercandies/extended_image/issues) <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5bcc0gy"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="flutter-candies" title="flutter-candies"></a>
 
 Language: [English](README.md) | [中文简体](README-ZH.md)
 
@@ -9,27 +9,27 @@ A powerful extended official image for Dart, which support placeholder(loading)/
 ## Table of contents
 
 - [extended_image](#extendedimage)
-  - [Table of contents](#table-of-contents)
-  - [Cache Network](#cache-network)
-    - [Simple use](#simple-use)
-    - [Use Extendednetworkimageprovider](#use-extendednetworkimageprovider)
-  - [Load State](#load-state)
+  - [Table of contents](#Table-of-contents)
+  - [Cache Network](#Cache-Network)
+    - [Simple use](#Simple-use)
+    - [Use Extendednetworkimageprovider](#Use-Extendednetworkimageprovider)
+  - [Load State](#Load-State)
     - [demo code](#demo-code)
-  - [Zoom Pan](#zoom-pan)
+  - [Zoom Pan](#Zoom-Pan)
     - [double tap animation](#double-tap-animation)
-  - [Photo View](#photo-view)
-  - [Slide Out Page](#slide-out-page)
+  - [Photo View](#Photo-View)
+  - [Slide Out Page](#Slide-Out-Page)
     - [enable slide out page](#enable-slide-out-page)
-    - [include your page in ExtendedImageSlidePage](#include-your-page-in-extendedimageslidepage)
+    - [include your page in ExtendedImageSlidePage](#include-your-page-in-ExtendedImageSlidePage)
     - [make sure your page background is transparent](#make-sure-your-page-background-is-transparent)
     - [push with transparent page route](#push-with-transparent-page-route)
-  - [Border BorderRadius Shape](#border-borderradius-shape)
-  - [Clear Save](#clear-save)
+  - [Border BorderRadius Shape](#Border-BorderRadius-Shape)
+  - [Clear Save](#Clear-Save)
     - [clear](#clear)
     - [save network](#save-network)
-  - [Crop](#crop)
-  - [Paint](#paint)
-  - [Other APIs](#other-apis)
+  - [Crop](#Crop)
+  - [Paint](#Paint)
+  - [Other APIs](#Other-APIs)
 
 ## Cache Network
 
@@ -396,6 +396,7 @@ ExtendedImageGesturePage
 | resetPageDuration          | reset page position when slide end(not pop page)                                 | milliseconds: 500                 |
 | slideType                  | slide whole page or only image                                                   | SlideType.onlyImage               |
 | onSlidingPage              | call back when it's sliding page, change other widgets state on page as you want | -                                 |
+| canMovePage                | whether we should move page                                                      | true                              |
 
 ```dart
 Color defaultSlidePageBackgroundHandler(
@@ -457,7 +458,7 @@ you should push page with TransparentMaterialPageRoute/TransparentCupertinoPageR
   );
 ```
 
-[Slide Out Page Demo Code 1](https://github.com/fluttercandies/extended_image/blob/master/example/lib/common/crop_image.dart
+[Slide Out Page Demo Code 1](https://github.com/fluttercandies/extended_image/blob/master/example/lib/common/crop_image.dart)
 
 [Slide Out Page Demo Code 2](https://github.com/fluttercandies/extended_image/blob/master/example/lib/common/pic_swiper.dart)
 
@@ -496,6 +497,13 @@ to clear disk cached , call clearDiskCachedImages method.
 // Clear the disk cache directory then return if it succeed.
 ///  <param name="duration">timespan to compute whether file has expired or not</param>
 Future<bool> clearDiskCachedImages({Duration duration})
+```
+
+to clear disk cached with specific url, call clearDiskCachedImage method.
+```dart
+/// clear the disk cache image then return if it succeed.
+///  <param name="url">clear specific one</param>
+Future<bool> clearDiskCachedImage(String url) async {
 ```
 
 to clear memory cache , call clearMemoryImageCache method.

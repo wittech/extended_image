@@ -1,6 +1,17 @@
-## [0.5.2]
+## [0.5.5]
 
-* Fix Api changes(ImageStream) over flutter version 1.5.8
+* Features:
+  Add call back [CanMovePage] for ExtendedImageGesturePageView. [related issue](https://github.com/fluttercandies/extended_image/issues/32) 
+  
+## [0.5.4]
+
+* Issues:
+  Fix issue about borderRadius and border
+  Fix demo error about extended_text 
+
+## [0.5.3]
+
+* Improve codes base on v1.7.8
 
 ## [0.5.1]
 

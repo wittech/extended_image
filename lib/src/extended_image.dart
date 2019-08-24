@@ -15,6 +15,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/semantics.dart';
 import 'package:http_client_helper/http_client_helper.dart';
 
+import 'edit/extended_image_editor.dart';
 import 'gesture/extended_image_slide_page.dart';
 import 'gesture/extended_image_slide_page_handler.dart';
 
@@ -606,7 +607,8 @@ class ExtendedImage extends StatefulWidget {
   _ExtendedImageState createState() => _ExtendedImageState();
 }
 
-class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
+class _ExtendedImageState extends State<ExtendedImage>
+    with ExtendedImageState, WidgetsBindingObserver {
   LoadState _loadState;
   ImageStream _imageStream;
   ImageInfo _imageInfo;
@@ -618,13 +620,13 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
   void initState() {
     returnLoadStateChangedWidget = false;
     _loadState = LoadState.loading;
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    _invertColors = MediaQuery.of(context, nullOk: true)?.invertColors ??
-        SemanticsBinding.instance.accessibilityFeatures.invertColors;
+    _updateInvertColors();
     _resolveImage();
 
     _slidePageState = null;
@@ -658,9 +660,22 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
   }
 
   @override
+  void didChangeAccessibilityFeatures() {
+    super.didChangeAccessibilityFeatures();
+    setState(() {
+      _updateInvertColors();
+    });
+  }
+
+  @override
   void reassemble() {
     _resolveImage(); // in case the image cache was flushed
     super.reassemble();
+  }
+
+  void _updateInvertColors() {
+    _invertColors = MediaQuery.of(context, nullOk: true)?.invertColors ??
+        SemanticsBinding.instance.accessibilityFeatures.invertColors;
   }
 
   void _resolveImage([bool rebuild = false]) {
@@ -773,6 +788,7 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
   @override
   void dispose() {
     assert(_imageStream != null);
+    WidgetsBinding.instance.removeObserver(this);
     _stopListeningToStream();
     //_cacnelNetworkImageRequest(widget.image);
     super.dispose();
@@ -810,6 +826,10 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
           case LoadState.completed:
             if (widget.mode == ExtendedImageMode.Gesture) {
               current = ExtendedImageGesture(this, _slidePageState);
+            } else if (widget.mode == ExtendedImageMode.Eidt) {
+              current = ExtendedImageEditor(
+                extendedImageState: this,
+              );
             } else {
               current = _buildExtendedRawImage();
             }
@@ -830,6 +850,11 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
         if (_loadState == LoadState.completed &&
             widget.mode == ExtendedImageMode.Gesture) {
           current = ExtendedImageGesture(this, _slidePageState);
+        } else if (_loadState == LoadState.completed &&
+            widget.mode == ExtendedImageMode.Eidt) {
+          current = ExtendedImageEditor(
+            extendedImageState: this,
+          );
         } else {
           current = _buildExtendedRawImage();
         }
