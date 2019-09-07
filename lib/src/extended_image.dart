@@ -14,45 +14,46 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/semantics.dart';
 import 'package:http_client_helper/http_client_helper.dart';
-
-import 'edit/extended_image_editor.dart';
+import 'editor/extended_image_editor.dart';
 import 'gesture/extended_image_slide_page.dart';
 import 'gesture/extended_image_slide_page_handler.dart';
 
 /// extended image base on official
 class ExtendedImage extends StatefulWidget {
-  ExtendedImage({
-    Key key,
-    @required this.image,
-    this.semanticLabel,
-    this.excludeFromSemantics = false,
-    this.width,
-    this.height,
-    this.color,
-    this.colorBlendMode,
-    this.fit,
-    this.alignment = Alignment.center,
-    this.repeat = ImageRepeat.noRepeat,
-    this.centerSlice,
-    this.matchTextDirection = false,
-    this.gaplessPlayback = false,
-    this.filterQuality = FilterQuality.low,
-    this.loadStateChanged,
-    this.border,
-    this.shape,
-    this.borderRadius,
-    this.clipBehavior: Clip.antiAlias,
-    this.enableLoadState: false,
-    this.beforePaintImage,
-    this.afterPaintImage,
-    this.mode: ExtendedImageMode.None,
-    this.enableMemoryCache: true,
-    this.clearMemoryCacheIfFailed: true,
-    this.onDoubleTap,
-    this.initGestureConfigHandler,
-    this.enableSlideOutPage: false,
-    BoxConstraints constraints,
-  })  : assert(image != null),
+  ExtendedImage(
+      {Key key,
+      @required this.image,
+      this.semanticLabel,
+      this.excludeFromSemantics = false,
+      this.width,
+      this.height,
+      this.color,
+      this.colorBlendMode,
+      this.fit,
+      this.alignment = Alignment.center,
+      this.repeat = ImageRepeat.noRepeat,
+      this.centerSlice,
+      this.matchTextDirection = false,
+      this.gaplessPlayback = false,
+      this.filterQuality = FilterQuality.low,
+      this.loadStateChanged,
+      this.border,
+      this.shape,
+      this.borderRadius,
+      this.clipBehavior: Clip.antiAlias,
+      this.enableLoadState: false,
+      this.beforePaintImage,
+      this.afterPaintImage,
+      this.mode: ExtendedImageMode.None,
+      this.enableMemoryCache: true,
+      this.clearMemoryCacheIfFailed: true,
+      this.onDoubleTap,
+      this.initGestureConfigHandler,
+      this.enableSlideOutPage: false,
+      BoxConstraints constraints,
+      this.extendedImageEditorKey,
+      this.initEidtConfigHandler})
+      : assert(image != null),
         assert(constraints == null || constraints.debugAssertIsValid()),
         constraints = (width != null || height != null)
             ? constraints?.tighten(width: width, height: height) ??
@@ -97,7 +98,9 @@ class ExtendedImage extends StatefulWidget {
       Map<String, String> headers,
       bool cache: true,
       double scale = 1.0,
-      Duration timeRetry: const Duration(milliseconds: 100)})
+      Duration timeRetry: const Duration(milliseconds: 100),
+      this.extendedImageEditorKey,
+      this.initEidtConfigHandler})
       :
         //assert(autoCancel != null),
         image = ExtendedNetworkImageProvider(url,
@@ -164,7 +167,9 @@ class ExtendedImage extends StatefulWidget {
       this.onDoubleTap,
       this.initGestureConfigHandler,
       this.enableSlideOutPage: false,
-      BoxConstraints constraints})
+      BoxConstraints constraints,
+      this.extendedImageEditorKey,
+      this.initEidtConfigHandler})
       : image = FileImage(file, scale: scale),
         assert(alignment != null),
         assert(repeat != null),
@@ -195,7 +200,7 @@ class ExtendedImage extends StatefulWidget {
   ///
   /// If [excludeFromSemantics] is true, then [semanticLabel] will be ignored.
   //
-  // TODO(ianh): Implement the following (see ../services/image_resolution.dart):
+  //
   // ///
   // /// * If [width] and [height] are both specified, and [scale] is not, then
   // ///   size-aware asset resolution will be attempted also, with the given
@@ -333,7 +338,9 @@ class ExtendedImage extends StatefulWidget {
       this.onDoubleTap,
       this.initGestureConfigHandler,
       this.enableSlideOutPage: false,
-      BoxConstraints constraints})
+      BoxConstraints constraints,
+      this.extendedImageEditorKey,
+      this.initEidtConfigHandler})
       : image = scale != null
             ? ExactAssetImage(name,
                 bundle: bundle, scale: scale, package: package)
@@ -392,7 +399,9 @@ class ExtendedImage extends StatefulWidget {
       this.onDoubleTap,
       this.initGestureConfigHandler,
       this.enableSlideOutPage: false,
-      BoxConstraints constraints})
+      BoxConstraints constraints,
+      this.extendedImageEditorKey,
+      this.initEidtConfigHandler})
       : image = MemoryImage(bytes, scale: scale),
         assert(alignment != null),
         assert(repeat != null),
@@ -402,6 +411,12 @@ class ExtendedImage extends StatefulWidget {
                 BoxConstraints.tightFor(width: width, height: height)
             : constraints,
         super(key: key);
+
+  /// init EidtConfig when image is ready.
+  final InitEidtConfigHandler initEidtConfigHandler;
+
+  /// key of ExtendedImageEditor
+  final Key extendedImageEditorKey;
 
   /// whether enable slide out page
   /// you should make sure this is in [ExtendedImageSlidePage]
@@ -829,6 +844,7 @@ class _ExtendedImageState extends State<ExtendedImage>
             } else if (widget.mode == ExtendedImageMode.Eidt) {
               current = ExtendedImageEditor(
                 extendedImageState: this,
+                key: widget.extendedImageEditorKey,
               );
             } else {
               current = _buildExtendedRawImage();
@@ -854,6 +870,7 @@ class _ExtendedImageState extends State<ExtendedImage>
             widget.mode == ExtendedImageMode.Eidt) {
           current = ExtendedImageEditor(
             extendedImageState: this,
+            key: widget.extendedImageEditorKey,
           );
         } else {
           current = _buildExtendedRawImage();

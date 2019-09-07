@@ -39,7 +39,8 @@ class _PicSwiperState extends State<PicSwiper>
 //    return _cancelToken;
 //  }
   List<double> doubleTapScales = <double>[1.0, 2.0];
-
+  GlobalKey<ExtendedImageSlidePageState> slidePagekey =
+      GlobalKey<ExtendedImageSlidePageState>();
   int currentIndex;
   bool _showSwiper = true;
 
@@ -141,6 +142,7 @@ class _PicSwiperState extends State<PicSwiper>
                 image = GestureDetector(
                   child: image,
                   onTap: () {
+                    slidePagekey.currentState.popPage();
                     Navigator.pop(context);
                   },
                 );
@@ -149,6 +151,17 @@ class _PicSwiperState extends State<PicSwiper>
                   return Hero(
                     tag: item + index.toString(),
                     child: image,
+                    flightShuttleBuilder: (BuildContext flightContext,
+                        Animation<double> animation,
+                        HeroFlightDirection flightDirection,
+                        BuildContext fromHeroContext,
+                        BuildContext toHeroContext) {
+                      final Hero hero =
+                          flightDirection == HeroFlightDirection.pop
+                              ? fromHeroContext.widget
+                              : toHeroContext.widget;
+                      return hero.child;
+                    },
                   );
                 } else {
                   return image;
@@ -187,7 +200,8 @@ class _PicSwiperState extends State<PicSwiper>
           ],
         ));
 
-    return ExtendedImageSlidePage(
+    result = ExtendedImageSlidePage(
+      key: slidePagekey,
       child: result,
       slideAxis: SlideAxis.both,
       slideType: SlideType.onlyImage,
@@ -208,6 +222,8 @@ class _PicSwiperState extends State<PicSwiper>
         }
       },
     );
+
+    return result;
   }
 }
 
