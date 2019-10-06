@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' show File;
 import 'dart:typed_data';
 
 import 'package:extended_image/src/extended_image_border_painter.dart';
@@ -44,7 +44,7 @@ class ExtendedImage extends StatefulWidget {
       this.enableLoadState: false,
       this.beforePaintImage,
       this.afterPaintImage,
-      this.mode: ExtendedImageMode.None,
+      this.mode: ExtendedImageMode.none,
       this.enableMemoryCache: true,
       this.clearMemoryCacheIfFailed: true,
       this.onDoubleTap,
@@ -52,7 +52,8 @@ class ExtendedImage extends StatefulWidget {
       this.enableSlideOutPage: false,
       BoxConstraints constraints,
       this.extendedImageEditorKey,
-      this.initEidtConfigHandler})
+      this.initEditorConfigHandler,
+      this.heroBuilderForSlidingPage})
       : assert(image != null),
         assert(constraints == null || constraints.debugAssertIsValid()),
         constraints = (width != null || height != null)
@@ -84,7 +85,7 @@ class ExtendedImage extends StatefulWidget {
       this.enableLoadState: true,
       this.beforePaintImage,
       this.afterPaintImage,
-      this.mode: ExtendedImageMode.None,
+      this.mode: ExtendedImageMode.none,
       this.enableMemoryCache: true,
       this.clearMemoryCacheIfFailed: true,
       this.onDoubleTap,
@@ -100,7 +101,8 @@ class ExtendedImage extends StatefulWidget {
       double scale = 1.0,
       Duration timeRetry: const Duration(milliseconds: 100),
       this.extendedImageEditorKey,
-      this.initEidtConfigHandler})
+      this.initEditorConfigHandler,
+      this.heroBuilderForSlidingPage})
       :
         //assert(autoCancel != null),
         image = ExtendedNetworkImageProvider(url,
@@ -161,7 +163,7 @@ class ExtendedImage extends StatefulWidget {
       this.enableLoadState: false,
       this.beforePaintImage,
       this.afterPaintImage,
-      this.mode: ExtendedImageMode.None,
+      this.mode: ExtendedImageMode.none,
       this.enableMemoryCache: true,
       this.clearMemoryCacheIfFailed: true,
       this.onDoubleTap,
@@ -169,7 +171,8 @@ class ExtendedImage extends StatefulWidget {
       this.enableSlideOutPage: false,
       BoxConstraints constraints,
       this.extendedImageEditorKey,
-      this.initEidtConfigHandler})
+      this.initEditorConfigHandler,
+      this.heroBuilderForSlidingPage})
       : image = FileImage(file, scale: scale),
         assert(alignment != null),
         assert(repeat != null),
@@ -332,7 +335,7 @@ class ExtendedImage extends StatefulWidget {
       this.enableLoadState: false,
       this.beforePaintImage,
       this.afterPaintImage,
-      this.mode: ExtendedImageMode.None,
+      this.mode: ExtendedImageMode.none,
       this.enableMemoryCache: true,
       this.clearMemoryCacheIfFailed: true,
       this.onDoubleTap,
@@ -340,7 +343,8 @@ class ExtendedImage extends StatefulWidget {
       this.enableSlideOutPage: false,
       BoxConstraints constraints,
       this.extendedImageEditorKey,
-      this.initEidtConfigHandler})
+      this.initEditorConfigHandler,
+      this.heroBuilderForSlidingPage})
       : image = scale != null
             ? ExactAssetImage(name,
                 bundle: bundle, scale: scale, package: package)
@@ -393,7 +397,7 @@ class ExtendedImage extends StatefulWidget {
       this.enableLoadState: false,
       this.beforePaintImage,
       this.afterPaintImage,
-      this.mode: ExtendedImageMode.None,
+      this.mode: ExtendedImageMode.none,
       this.enableMemoryCache: true,
       this.clearMemoryCacheIfFailed: true,
       this.onDoubleTap,
@@ -401,7 +405,8 @@ class ExtendedImage extends StatefulWidget {
       this.enableSlideOutPage: false,
       BoxConstraints constraints,
       this.extendedImageEditorKey,
-      this.initEidtConfigHandler})
+      this.initEditorConfigHandler,
+      this.heroBuilderForSlidingPage})
       : image = MemoryImage(bytes, scale: scale),
         assert(alignment != null),
         assert(repeat != null),
@@ -412,8 +417,11 @@ class ExtendedImage extends StatefulWidget {
             : constraints,
         super(key: key);
 
+  ///build Hero only for sliding page
+  final HeroBuilderForSlidingPage heroBuilderForSlidingPage;
+
   /// init EidtConfig when image is ready.
-  final InitEidtConfigHandler initEidtConfigHandler;
+  final InitEditorConfigHandler initEditorConfigHandler;
 
   /// key of ExtendedImageEditor
   final Key extendedImageEditorKey;
@@ -705,10 +713,7 @@ class _ExtendedImageState extends State<ExtendedImage>
                 : null));
     assert(newStream != null);
 
-    if (widget.image is ExtendedNetworkImageProvider &&
-        _imageInfo != null &&
-        !rebuild &&
-        _imageStream?.key == newStream?.key) {
+    if (_imageInfo != null && !rebuild && _imageStream?.key == newStream?.key) {
       setState(() {
         _loadState = LoadState.completed;
       });
@@ -839,9 +844,9 @@ class _ExtendedImageState extends State<ExtendedImage>
             );
             break;
           case LoadState.completed:
-            if (widget.mode == ExtendedImageMode.Gesture) {
+            if (widget.mode == ExtendedImageMode.gesture) {
               current = ExtendedImageGesture(this, _slidePageState);
-            } else if (widget.mode == ExtendedImageMode.Eidt) {
+            } else if (widget.mode == ExtendedImageMode.editor) {
               current = ExtendedImageEditor(
                 extendedImageState: this,
                 key: widget.extendedImageEditorKey,
@@ -864,10 +869,10 @@ class _ExtendedImageState extends State<ExtendedImage>
         }
       } else {
         if (_loadState == LoadState.completed &&
-            widget.mode == ExtendedImageMode.Gesture) {
+            widget.mode == ExtendedImageMode.gesture) {
           current = ExtendedImageGesture(this, _slidePageState);
         } else if (_loadState == LoadState.completed &&
-            widget.mode == ExtendedImageMode.Eidt) {
+            widget.mode == ExtendedImageMode.editor) {
           current = ExtendedImageEditor(
             extendedImageState: this,
             key: widget.extendedImageEditorKey,
@@ -915,7 +920,7 @@ class _ExtendedImageState extends State<ExtendedImage>
     ///add for loading/falied/ unGesture image
     if (_slidePageState != null &&
         !(_loadState == LoadState.completed &&
-            widget.mode == ExtendedImageMode.Gesture)) {
+            widget.mode == ExtendedImageMode.gesture)) {
       current = ExtendedImageSlidePageHandler(current, _slidePageState);
     }
 
@@ -929,7 +934,7 @@ class _ExtendedImageState extends State<ExtendedImage>
   }
 
   Widget _getIndicator(BuildContext context) {
-    return Platform.isIOS
+    return Theme.of(context).platform == TargetPlatform.iOS
         ? CupertinoActivityIndicator(
             animating: true,
             radius: 16.0,

@@ -1,3 +1,22 @@
+## [0.6.1]
+
+* Issues:
+  Fix issue about drag slowly in ImageEditor
+
+## [0.6.0]
+
+* Issues:
+  Fix issue about strange behaviour at slide out page
+  
+## [0.5.9]
+
+* Add HeroBuilderForSlidingPage call back to fix strange hero animation
+  
+## [0.5.8]
+
+* Features:
+  Support to crop,rotate,flip image
+  
 ## [0.5.6]
 
 * Add key for ExtendedImageSlidePage

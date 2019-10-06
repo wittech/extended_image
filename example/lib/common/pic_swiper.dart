@@ -81,7 +81,28 @@ class _PicSwiperState extends State<PicSwiper>
                   item,
                   fit: BoxFit.contain,
                   enableSlideOutPage: true,
-                  mode: ExtendedImageMode.Gesture,
+                  mode: ExtendedImageMode.gesture,
+                  heroBuilderForSlidingPage: (Widget result) {
+                    if (index == currentIndex) {
+                      return Hero(
+                        tag: item + index.toString(),
+                        child: result,
+                        flightShuttleBuilder: (BuildContext flightContext,
+                            Animation<double> animation,
+                            HeroFlightDirection flightDirection,
+                            BuildContext fromHeroContext,
+                            BuildContext toHeroContext) {
+                          final Hero hero =
+                              flightDirection == HeroFlightDirection.pop
+                                  ? fromHeroContext.widget
+                                  : toHeroContext.widget;
+                          return hero.child;
+                        },
+                      );
+                    } else {
+                      return result;
+                    }
+                  },
                   initGestureConfigHandler: (state) {
                     double initialScale = 1.0;
 
@@ -147,25 +168,7 @@ class _PicSwiperState extends State<PicSwiper>
                   },
                 );
 
-                if (index == currentIndex) {
-                  return Hero(
-                    tag: item + index.toString(),
-                    child: image,
-                    flightShuttleBuilder: (BuildContext flightContext,
-                        Animation<double> animation,
-                        HeroFlightDirection flightDirection,
-                        BuildContext fromHeroContext,
-                        BuildContext toHeroContext) {
-                      final Hero hero =
-                          flightDirection == HeroFlightDirection.pop
-                              ? fromHeroContext.widget
-                              : toHeroContext.widget;
-                      return hero.child;
-                    },
-                  );
-                } else {
-                  return image;
-                }
+                return image;
               },
               itemCount: widget.pics.length,
               onPageChanged: (int index) {

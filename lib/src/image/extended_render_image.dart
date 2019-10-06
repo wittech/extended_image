@@ -457,18 +457,19 @@ void paintExtendedImage({
   assert(repeat != null);
   assert(flipHorizontally != null);
   if (rect.isEmpty) return;
+
   Size outputSize = rect.size;
   Size inputSize = Size(image.width.toDouble(), image.height.toDouble());
 
   Offset topLeft = rect.topLeft;
 
-  if (editActionDetails != null && editActionDetails.isHalfPi) {
-    outputSize = Size(outputSize.height, outputSize.width);
-    var center = rect.center;
-    topLeft = Rect.fromLTWH(center.dx - rect.height / 2.0,
-            center.dy - rect.width / 2.0, rect.height, rect.width)
-        .topLeft;
-  }
+  // if (editActionDetails != null && editActionDetails.isHalfPi) {
+  //   outputSize = Size(outputSize.height, outputSize.width);
+  //   var center = rect.center;
+  //   topLeft = Rect.fromLTWH(center.dx - rect.height / 2.0,
+  //           center.dy - rect.width / 2.0, rect.height, rect.width)
+  //       .topLeft;
+  // }
 
   Offset sliceBorder;
   if (centerSlice != null) {
@@ -515,7 +516,6 @@ void paintExtendedImage({
   bool gestureClip = false;
 
   if (gestureDetails != null) {
-    
     destinationRect =
         gestureDetails.calculateFinalDestinationRect(rect, destinationRect);
 
@@ -534,10 +534,19 @@ void paintExtendedImage({
   }
   bool hasEditAction = false;
   if (editActionDetails != null) {
-     editActionDetails.initRect(rect, destinationRect);
+    if (editActionDetails.cropRectPadding != null) {
+      destinationRect = getDestinationRect(
+          inputSize: inputSize,
+          rect: editActionDetails.cropRectPadding.deflateRect(rect),
+          fit: fit,
+          flipHorizontally: false,
+          scale: scale,
+          centerSlice: centerSlice,alignment: alignment);
+    }
 
-    destinationRect =
-        editActionDetails.getFinalDestinationRect();
+    editActionDetails.initRect(rect, destinationRect);
+
+    destinationRect = editActionDetails.getFinalDestinationRect();
 
     ///outside and need clip
     gestureClip = outRect(rect, destinationRect);
@@ -551,47 +560,32 @@ void paintExtendedImage({
       }
     }
 
-    
     if (hasEditAction) {
       var origin =
-        editActionDetails.screenCropRect?.center ?? destinationRect.center;
+          editActionDetails.screenCropRect?.center ?? destinationRect.center;
 
       final Matrix4 result = Matrix4.identity();
 
       var editAction = editActionDetails;
 
+      result.translate(
+        origin.dx,
+        origin.dy,
+      );
+
       if (editAction.hasRotateAngle) {
-        var rotateOrigin = origin;
-        // var centerDelta = origin - destinationRect.center;
-        // if (centerDelta != Offset.zero) {
-        //   rotateOrigin = origin + Offset(centerDelta.dy, centerDelta.dx);
-        // }
-
-        result.translate(
-          rotateOrigin.dx,
-          rotateOrigin.dy,
-        );
         result.multiply(Matrix4.rotationZ(editAction.rotateAngle));
-        result.translate(-rotateOrigin.dx, -rotateOrigin.dy);
       }
 
-      if (editAction.flipY || editAction.flipX) {
-        result.translate(
-          origin.dx,
-          origin.dy,
-        );
-
-        if (editAction.flipY) {
-          result.multiply(Matrix4.rotationY(pi));
-        }
-
-        if (editAction.flipX) {
-          result.multiply(Matrix4.rotationX(pi));
-        }
-
-        result.translate(-origin.dx, -origin.dy);
+      if (editAction.flipY) {
+        result.multiply(Matrix4.rotationY(pi));
       }
 
+      if (editAction.flipX) {
+        result.multiply(Matrix4.rotationX(pi));
+      }
+
+      result.translate(-origin.dx, -origin.dy);
       canvas.transform(result.storage);
       destinationRect = editAction.paintRect(destinationRect);
     }
@@ -631,8 +625,7 @@ void paintExtendedImage({
     canvas.restore();
   }
 
-  if(editActionDetails!=null && hasEditAction)
-  {
+  if (editActionDetails != null && hasEditAction) {
     canvas.restore();
   }
 
